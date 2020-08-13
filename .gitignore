@@ -1,1 +1,4 @@
 /sql
+.vscode/tasks.json
+.vscode/launch.json
+vendor/mludovico/php-classes/src/DB/secrets.php

@@ -6,8 +6,18 @@ namespace Composer\Autoload;
 
 class ComposerStaticInita2bffbc4344d72c94caf576be5814d28
 {
-    public static $fallbackDirsPsr4 = array (
-        0 => __DIR__ . '/..' . '/mludovico/php-classes/src',
+    public static $prefixLengthsPsr4 = array (
+        'm' => 
+        array (
+            'mludovico\\' => 10,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'mludovico\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mludovico/php-classes/src',
+        ),
     );
 
     public static $prefixesPsr0 = array (
@@ -41,7 +51,8 @@ class ComposerStaticInita2bffbc4344d72c94caf576be5814d28
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->fallbackDirsPsr4 = ComposerStaticInita2bffbc4344d72c94caf576be5814d28::$fallbackDirsPsr4;
+            $loader->prefixLengthsPsr4 = ComposerStaticInita2bffbc4344d72c94caf576be5814d28::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInita2bffbc4344d72c94caf576be5814d28::$prefixDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInita2bffbc4344d72c94caf576be5814d28::$prefixesPsr0;
             $loader->classMap = ComposerStaticInita2bffbc4344d72c94caf576be5814d28::$classMap;
 

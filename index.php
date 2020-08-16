@@ -8,7 +8,9 @@ $app->config('debug', true);
 
 $app->get('/', function() {
     
-	echo "OK";
+  $sql = new mludovico\DB\Sql();
+  $results = $sql->select("select * from tb_products");
+  var_dump($results);
 
 });
 

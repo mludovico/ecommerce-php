@@ -44,7 +44,8 @@ class Page{
   }
 
   public function __destruct(){
-    $this->tpl->draw("footer");
+    if($this->options["footer"] === true) $this->tpl->draw("header");
+      $this->tpl->draw("footer");
   }
 }
 ?>

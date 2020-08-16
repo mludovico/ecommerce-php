@@ -1,17 +1,18 @@
 <?php 
 
 require_once("vendor/autoload.php");
+use \Slim\Slim;
+use \mludovico\Page;
 
-$app = new \Slim\Slim();
+$app = new Slim();
 
 $app->config('debug', true);
 
 $app->get('/', function() {
-    
-  $sql = new mludovico\DB\Sql();
-  $results = $sql->select("select * from tb_products");
-  var_dump($results);
 
+  $page = new Page();
+  $page->setTpl("index");
+  
 });
 
 $app->run();

@@ -2,5 +2,6 @@
 .vscode/tasks.json
 .vscode/launch.json
 vendor/mludovico/php-classes/src/DB/secrets.php
+vendor/mludovico/php-classes/src/secrets.php
 views-cache/*
 !views-cache/.gitkeep

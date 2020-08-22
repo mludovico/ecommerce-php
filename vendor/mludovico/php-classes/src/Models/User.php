@@ -11,6 +11,8 @@ class User extends Model{
   const SECRET = "CursoMLudovicoPHP7";
   const SECRET_IV = "CursoMLudovicoPHP7_IV";
 
+  public static $link = "";
+
   public static function login($login, $password){
     $sql = new Sql();
 
@@ -128,14 +130,58 @@ class User extends Model{
         $code = openssl_encrypt($dataRecovery['idrecovery'], 'AES-128-CBC', pack("a16", User::SECRET), 0, pack("a16", User::SECRET_IV));
 				$code = base64_encode($code);
         $link = "http://localhost:8080/admin/forgot/reset?code=$code";
+        
+        file_put_contents("link.txt", $link);
         $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefenir senha", "forgot", array(
           "name"=>$data['desperson'],
           "link"=>$link
         ));
-        echo "<script>console.log($link);</script>";
         return $mailer->send();
       }
     }
+  }
+
+  public static function validForgotDecrypt($code){
+    $decoded = base64_decode($code);
+    $idRecovery = openssl_decrypt($decoded, 'AES-128-CBC', pack("a16", User::SECRET), 0, pack("a16", User::SECRET_IV));
+    $sql = new Sql();
+    $results = $sql->select(
+      "SELECT * FROM tb_userspasswordsrecoveries a
+      INNER JOIN tb_users b ON a.iduser = b.iduser
+      INNER JOIN tb_persons c ON b.idperson = c.idperson
+      WHERE a.idrecovery = :idrecovery
+      AND a.dtrecovery is NULL
+      AND a.dtregister +  '1 HOUR'::INTERVAL >= NOW();", array(
+        ":idrecovery"=>$idRecovery
+      )
+    );
+    if(count($results) === 0){
+      throw new \Exception("Erro ao validar código de recuperação");
+    }
+    else{
+      return $results[0];
+    }
+  }
+
+  public static function setForgotUsed($idrecovery){
+    $sql = new Sql();
+    $sql->query(
+      "UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW() WHERE idrecovery = :idrecovery",
+      array(
+        ":idrecovery"=>$idrecovery
+      )
+    );
+  }
+
+  public function setPassword($password){
+    $sql = new Sql();
+    $sql->query(
+      "UPDATE tb_users SET despassword = :password WHERE iduser = :iduser",
+      array(
+        ":password"=>$password,
+        ":iduser"=>$this->getiduser()
+      )
+    );
   }
 }
 

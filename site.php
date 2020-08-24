@@ -2,11 +2,16 @@
 
 use \mludovico\Page;
 use \mludovico\Models\Category;
+use \mludovico\Models\Product;
 
 $app->get('/', function() {
 
+  $products = Product::listAll();
+
   $page = new Page();
-  $page->setTpl("index");
+  $page->setTpl("index", array(
+    "products"=>Product::checkList($products)
+  ));
   
 });
 
@@ -19,4 +24,7 @@ $app->get('/category/:idcategory', function($idcategory){
     "products"=>[]
   ));
 });
+
+$app->get('/');
+
 ?>

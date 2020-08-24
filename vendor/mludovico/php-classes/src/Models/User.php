@@ -66,7 +66,7 @@ class User extends Model{
     $results = $sql->select("SELECT sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
       ":desperson"=>$this->getdesperson(),
       ":deslogin"=>$this->getdeslogin(),
-      ":despassword"=>$this->getdespassword(),
+      ":despassword"=>password_hash($this->getdespassword(), PASSWORD_DEFAULT),
       ":desemail"=>$this->getdesemail(),
       ":nrphone"=>$this->getnrphone(),
       ":inadmin"=>$this->getinadmin(),

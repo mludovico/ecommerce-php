@@ -3,6 +3,7 @@
 use \mludovico\Page;
 use \mludovico\Models\Category;
 use \mludovico\Models\Product;
+use \mludovico\Models\Cart;
 
 $app->get('/', function() {
 
@@ -42,6 +43,14 @@ $app->get('/products/:desurl', function($desurl){
   $page->setTpl('product-detail', array(
     'product'=>$product->getValues(),
     'categories'=>$product->getCategories()
+  ));
+});
+
+$app->get('/cart', function(){
+  $cart = Cart::getFromSession();
+  $page = new Page();
+  $page->setTpl('cart', array(
+    'products'=>[]
   ));
 });
 

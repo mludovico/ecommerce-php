@@ -123,10 +123,10 @@ class Product extends Model{
     foreach ($products as $row) {
       array_push($html, '<li><a href="/product/'.$row['idproduct'].'">'.$row['desproduct'].'</a></li>');
     }
-    // file_put_contents(
-    //   $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'products-menu.html',
-    //   implode('', $html)
-    // );
+    file_put_contents(
+      $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'products-menu.html',
+      implode('', $html)
+    );
   }
 }
 ?>

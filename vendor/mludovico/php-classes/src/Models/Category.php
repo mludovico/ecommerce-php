@@ -90,6 +90,30 @@ class Category extends Model{
     }
   }
 
+  public function getProductsPerPage($page = 1, $itemsPerPage = 3)
+  {
+    $sql = new Sql();
+    $results = $sql->select(
+      "SELECT *, COUNT(*) OVER() AS nrtotal
+       FROM tb_products a
+       INNER JOIN tb_productscategories b ON a.idproduct = b.idproduct
+       INNER JOIN tb_categories c ON c.idcategory = b.idcategory
+       WHERE c.idcategory = :idcategory
+       LIMIT :itemsPerPage
+       OFFSET :page", array(
+        "idcategory"=>$this->getidcategory(),
+        "itemsPerPage"=>$itemsPerPage,
+        "page"=>($page-1) * $itemsPerPage
+       )
+    );
+    $data = [
+      "data"=>Product::checklist($results),
+      "total"=>(int)$results[0]['nrtotal'],
+      "pages"=>ceil($results[0]['nrtotal'] / $itemsPerPage)
+    ];
+    return($data);
+  }
+
   public function addProduct(Product $product)
   {
     $sql = new Sql();

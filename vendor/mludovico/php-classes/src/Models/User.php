@@ -50,7 +50,7 @@ class User extends Model{
     ));
 
     if(count($results) === 0){
-      throw new \Exception("Credenciais inválidas");
+      throw new \Exception('Usuário inválido');
     }
 
     $data = $results[0];
@@ -61,12 +61,12 @@ class User extends Model{
       $_SESSION[User::SESSION] = $user->getValues();
       return $user;
     }else{
-      throw new \Exception("Credenciais inválidas");
+      throw new \Exception('Credenciais Inválidas');
     }
   }
 
   public static function verifyLogin($inadmin = true){
-    if(User::checkLogin($inadmin)){
+    if(!User::checkLogin($inadmin)){
       header("Location: /admin/login");
       exit;
     }

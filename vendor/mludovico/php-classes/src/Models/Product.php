@@ -93,6 +93,8 @@ class Product extends Model{
     $extension = end($extension);
     switch ($extension) {
       case 'jpg':
+        $image = imagecreatefromjpeg($file["tmp_name"]);
+        break;
       case 'jpeg':
         $image = imagecreatefromjpeg($file["tmp_name"]);
         break;
@@ -101,9 +103,6 @@ class Product extends Model{
         break;
       case 'png':
         $image = imagecreatefrompng($file["tmp_name"]);
-        break;
-      default:
-        throw new \Exception("Formato de arquivo de imagem inválido");
         break;
     }
     $dest = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR .

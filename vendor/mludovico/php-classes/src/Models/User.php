@@ -244,6 +244,17 @@ class User extends Model{
     $_SESSION[User::REGISTER_ERROR] = NULL;
   }
 
+  public static function checkLoginExists($login)
+  {
+    $sql = new Sql();
+    $results = $sql->select(
+      "SELECT deslogin FROM tb_users WHERE deslogin = :deslogin", array(
+        ':deslogin'=>$login
+      )
+    );
+    return (count($results) > 0);
+  }
+
 }
 
 ?>

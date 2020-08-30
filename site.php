@@ -113,7 +113,12 @@ $app->get('/login', function(){
   $page = new Page();
   $page->setTpl('login', array(
     'error'=>User::getLoginError(),
-    'registerError'=>User::getRegisterError()
+    'registerError'=>User::getRegisterError(),
+    'registerValues'=>isset($_SESSION['registerValues'])
+      ? 
+        $_SESSION['registerValues']
+      :
+        ['name'=>'', 'email'=>'', 'phone'=>'']
   ));
 });
 
@@ -129,6 +134,39 @@ $app->post('/login', function(){
 
 $app->get('/logout', function(){
   User::logout();
+  header("Location: /");
+  exit;
+});
+
+$app->post('/register', function(){
+  $_SESSION['registerValues'] = [
+    'name'=>$_POST['name'],
+    'email'=>$_POST['email'],
+    'phone'=>$_POST['phone'],
+  ];
+  foreach (['name', 'email', 'password'] as $field) {
+    if(!isset($_POST[$field]) || $_POST[$field] == ''){
+      User::setRegisterError('Você deve inserir um valor para o ' . $field);
+      header("Location: /login");
+      exit;
+    }
+  }
+  if(User::checkLoginExists($_POST['email']) === true){
+    User::setRegisterError('Este endereço de email já está cadastrado.');
+    header("Location: /login");
+    exit;
+  }
+  $user = new User();
+  $user->setData([
+    'inadmin'=>0,
+    'deslogin'=>$_POST['email'],
+    'desperson'=>$_POST['name'],
+    'desemail'=>$_POST['email'],
+    'despassword'=>$_POST['password'],
+    'nrphone'=>(int)$_POST['phone']
+  ]);
+  $user->save();
+  User::login($_POST['email'], $_POST['password']);
   header("Location: /");
   exit;
 });

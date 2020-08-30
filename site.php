@@ -4,6 +4,8 @@ use \mludovico\Page;
 use \mludovico\Models\Category;
 use \mludovico\Models\Product;
 use \mludovico\Models\Cart;
+use \mludovico\Models\Address;
+use \mludovico\Models\User;
 
 $app->get('/', function() {
 
@@ -93,6 +95,41 @@ $app->post('/cart/freight', function(){
   $cart = Cart::getFromSession();
   $cart->setFreight($_POST['zipcode']);
   header("Location: /cart");
+  exit;
+});
+
+$app->get('/checkout', function(){
+  User::verifyLogin(false);
+  $cart = Cart::getFromSession();
+  $address = new Address();
+  $page = new Page();
+  $page->setTpl('checkout', array(
+    'cart'=>$cart->getValues(),
+    'address'=>$address->getValues()
+  ));
+});
+
+$app->get('/login', function(){
+  $page = new Page();
+  $page->setTpl('login', array(
+    'error'=>User::getLoginError(),
+    'registerError'=>User::getRegisterError()
+  ));
+});
+
+$app->post('/login', function(){
+  try{
+    User::Login($_POST['login'], $_POST['password']);
+  }catch(\Exception $e){
+    User::setLoginError($e->getMessage());
+  }
+  header("Location: /checkout");
+  exit;
+});
+
+$app->get('/logout', function(){
+  User::logout();
+  header("Location: /");
   exit;
 });
 

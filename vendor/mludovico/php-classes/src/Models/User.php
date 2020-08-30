@@ -10,6 +10,8 @@ class User extends Model{
   const SESSION = "User";
   const SECRET = "CursoMLudovicoPHP7";
   const SECRET_IV = "CursoMLudovicoPHP7_IV";
+  const ERROR = "UserError";
+  const REGISTER_ERROR = "UserRegisterError";
 
   public static $link = "";
 
@@ -32,9 +34,9 @@ class User extends Model{
     ){
       return false;
     }else{
-      if($inadmin && (bool)$_SESSION[User::SESSION]['inadmin']){
+      if($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true){
        return true;
-      }else if(!$inadmin){
+      }else if($inadmin === false){
         return true;
       }else{
         return false;
@@ -45,8 +47,12 @@ class User extends Model{
   public static function login($login, $password){
     $sql = new Sql();
 
-    $results = $sql->select("SELECT * FROM tb_users WHERE deslogin = :LOGIN", array(
-      ":LOGIN"=>$login
+    $results = $sql->select(
+      "SELECT * FROM tb_users a
+       INNER JOIN tb_persons b
+       ON a.idperson = b.idperson
+       WHERE deslogin = :login", array(
+      ":login"=>$login
     ));
 
     if(count($results) === 0){
@@ -57,6 +63,7 @@ class User extends Model{
 
     if (password_verify($password, $data["despassword"]) === true){
       $user = new User();
+      $data['desperon'] = utf8_encode($data['desperson']);
       $user->setData($data);
       $_SESSION[User::SESSION] = $user->getValues();
       return $user;
@@ -67,7 +74,11 @@ class User extends Model{
 
   public static function verifyLogin($inadmin = true){
     if(!User::checkLogin($inadmin)){
-      header("Location: /admin/login");
+      if($inadmin){
+        header("Location: /admin/login");
+      }else{
+        header("Location: /login");
+      }
       exit;
     }
   }
@@ -100,8 +111,8 @@ class User extends Model{
     $results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser = :iduser", array(
       ":iduser"=>$iduser
     ));
-    
-    $this->setData($results[0]);
+    $data['desperson'] = utf8_decode($data['desperson']);
+    $this->setData($data);
   }
 
   public function update(){
@@ -110,7 +121,7 @@ class User extends Model{
       ":iduser"=>$this->getiduser(),
       ":desperson"=>$this->getdesperson(),
       ":deslogin"=>$this->getdeslogin(),
-      ":despassword"=>$this->getdespassword(),
+      ":despassword"=>$this->password_hash(getdespassword(), PASSWORD_DEFAULT),
       ":desemail"=>$this->getdesemail(),
       ":nrphone"=>$this->getnrphone(),
       ":inadmin"=>$this->getinadmin(),
@@ -204,6 +215,35 @@ class User extends Model{
       )
     );
   }
+
+  public static function setLoginError($msg){
+    $_SESSION[User::ERROR] = $msg;
+  }
+
+  public static function getLoginError(){
+    $msg = (isset($_SESSION[User::ERROR])) ? $_SESSION[User::ERROR] : "";
+    User::clearLoginError();
+    return $msg;
+  }
+
+  public static function clearLoginError(){
+    $_SESSION[User::ERROR] = NULL;
+  }
+
+  public static function setRegisterError($msg){
+    $_SESSION[User::REGISTER_ERROR] = $msg;
+  }
+
+  public static function getRegisterError(){
+    $msg = (isset($_SESSION[User::REGISTER_ERROR])) ? $_SESSION[User::REGISTER_ERROR] : "";
+    User::clearRegisterError();
+    return $msg;
+  }
+
+  public static function clearRegisterError(){
+    $_SESSION[User::REGISTER_ERROR] = NULL;
+  }
+
 }
 
 ?>

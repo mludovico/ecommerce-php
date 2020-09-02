@@ -111,8 +111,8 @@ class User extends Model{
     $results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser = :iduser", array(
       ":iduser"=>$iduser
     ));
-    $data['desperson'] = utf8_decode($data['desperson']);
-    $this->setData($data);
+    $results[0]['desperson'] = utf8_decode($results[0]['desperson']);
+    $this->setData($results[0]);
   }
 
   public function update(){
@@ -136,7 +136,7 @@ class User extends Model{
     ));
   }
 
-  public static function getForgot($email){
+  public static function getForgot($email, $inadmin = true){
     $sql = new Sql();
     $results = $sql->select("SELECT * FROM tb_persons a INNER JOIN tb_users b USING(idperson) WHERE desemail = :email", array(
       ":email"=>$email
@@ -160,9 +160,11 @@ class User extends Model{
       {
         $dataRecovery = $results2[0];
         $code = openssl_encrypt($dataRecovery['idrecovery'], 'AES-128-CBC', pack("a16", User::SECRET), 0, pack("a16", User::SECRET_IV));
-				$code = base64_encode($code);
-        $link = "http://localhost:8080/admin/forgot/reset?code=$code";
-        
+        $code = base64_encode($code);
+        if($inadmin === true)
+          $link = "http://localhost:8080/admin/forgot/reset?code=$code";
+        else
+          $link = "http://localhost:8080/forgot/reset?code=$code";
         file_put_contents("link.txt", $link);
         $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefenir senha", "forgot", array(
           "name"=>$data['desperson'],

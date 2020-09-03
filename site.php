@@ -215,11 +215,51 @@ $app->post('/forgot/reset', function(){
   $page->setTpl("forgot-reset-success");
 });
 
+$app->get('/profile', function(){
+  User::verifyLogin(false);
+  $user = User::getFromSession();
+  $page = new Page();
+  $page->setTpl('profile', array(
+    'user'=>$user->getValues(),
+    'profileMsg'=>User::getUserSuccess(),
+    'profileError'=>User::getLoginError()
+  ));
+});
+
+$app->post('/profile', function(){
+  $user = User::getFromSession();
+  User::verifyLogin(false);
+  if(!isset($_POST['desperson']) || $_POST['desperson'] === ''){
+    User::setLoginError("Preencha o seu nome.");
+    header("Location: /profile");
+    exit;
+  }
+  if(!isset($_POST['desemail']) || $_POST['desemail'] === ''){
+    User::setLoginError("Preencha o seu email.");
+    header("Location: /profile");
+    exit;
+  }
+  if($_POST['desemail'] !== $user->getdesemail()){
+    if(User::checkLoginExists($_POST['desemail'])){
+      User::setLoginError("Este endereço de email já está em uso.");
+      header("Location: /profile");
+      exit;
+    }
+  }
+  $_POST['inadmin'] = $user->getinadmin();
+  $_POST['despassword'] = $user->getdespassword();
+  $_POST['deslogin'] = $_POST['desemail'];
+  $user->setData($_POST);
+  $user->update();
+  User::setUserSuccess("Dados alterados com sucesso");
+  header("Location: /profile");
+  exit;
+});
+
 $app->get('/test', function(){
-  $user = new User();
-  $user->get(17);
-  var_dump($user);
-  var_dump($user->getiduser());
+  $user = User::getFromSession();
+  User::verifyLogin(false);
+  var_dump($user->getdespassword());
 });
   
 $app->get('/');

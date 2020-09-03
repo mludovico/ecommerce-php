@@ -12,6 +12,7 @@ class User extends Model{
   const SECRET_IV = "CursoMLudovicoPHP7_IV";
   const ERROR = "UserError";
   const REGISTER_ERROR = "UserRegisterError";
+  const SUCCESS = "UserSuccess";
 
   public static $link = "";
 
@@ -121,7 +122,7 @@ class User extends Model{
       ":iduser"=>$this->getiduser(),
       ":desperson"=>$this->getdesperson(),
       ":deslogin"=>$this->getdeslogin(),
-      ":despassword"=>$this->password_hash(getdespassword(), PASSWORD_DEFAULT),
+      ":despassword"=>$this->getdespassword(),
       ":desemail"=>$this->getdesemail(),
       ":nrphone"=>$this->getnrphone(),
       ":inadmin"=>$this->getinadmin(),
@@ -244,6 +245,20 @@ class User extends Model{
 
   public static function clearRegisterError(){
     $_SESSION[User::REGISTER_ERROR] = NULL;
+  }
+
+  public static function setUserSuccess($msg){
+    $_SESSION[User::SUCCESS] = $msg;
+  }
+
+  public static function getUserSuccess(){
+    $msg = (isset($_SESSION[User::SUCCESS])) ? $_SESSION[User::SUCCESS] : "";
+    User::clearUserSuccess();
+    return $msg;
+  }
+
+  public static function clearUserSuccess(){
+    $_SESSION[User::SUCCESS] = NULL;
   }
 
   public static function checkLoginExists($login)

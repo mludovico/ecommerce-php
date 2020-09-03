@@ -100,13 +100,51 @@ $app->post('/cart/freight', function(){
 
 $app->get('/checkout', function(){
   User::verifyLogin(false);
-  $cart = Cart::getFromSession();
   $address = new Address();
+  $cart = Cart::getFromSession();
+  if(isset($_GET['zipcode'])){
+    $address->loadFromCep($_GET['zipcode']);
+    $cart->setdeszipcode($_GET['zipcode']);
+    $cart->save();
+    $cart->getCalculateTotal();
+  }
+  if(!$address->getdeszipcode()) $address->setdeszipcode('');
+  if(!$address->getdesaddress()) $address->setdesaddress('');
+  if(!$address->getdescomplement()) $address->setdescomplement('');
+  if(!$address->getdesdistrict()) $address->setdesdistrict('');
+  if(!$address->getdescity()) $address->setdescity('');
+  if(!$address->getdesstate()) $address->setdesstate('');
+  if(!$address->getdescountry()) $address->setdescountry('');
   $page = new Page();
   $page->setTpl('checkout', array(
     'cart'=>$cart->getValues(),
-    'address'=>$address->getValues()
+    'address'=>$address->getValues(),
+    'products'=>$cart->getProducts(),
+    'error'=>Address::getError()
   ));
+});
+
+$app->post('/checkout', function(){
+  User::verifyLogin(false);
+  foreach (['zipcode'=>'CEP', 'desaddress'=>'Endereço', 'desdistrict'=>'Bairro', 'descity'=>'Cidade', 'desstate'=>'Estado', 'descountry'=>'País'] as $key=>$value) {
+    if($key == 'zipcode' && !isset($_POST[$key]) || $_POST[$key] === '')
+      $param = '?zipcode=' . $_POST['zipcode'];
+    else
+      $param = '';
+    if(!isset($_POST[$key]) || $_POST[$key] === ''){
+      Address::setError("Informe ". (substr($value, -1) == 'e' ? 'a ' : 'o ') . $value . '.');
+      header("Location: /checkout$param");
+      exit;
+    }    
+  }
+  $user = User::getFromSession();
+  $address = new Address();
+  $_POST['idperson'] = $user->getidperson();
+  $_POST['deszipcode'] = $_POST['zipcode'];
+  $address->setData($_POST);
+  $address->save();
+  header("Location: /order");
+  exit;
 });
 
 $app->get('/login', function(){
@@ -257,9 +295,9 @@ $app->post('/profile', function(){
 });
 
 $app->get('/test', function(){
-  $user = User::getFromSession();
-  User::verifyLogin(false);
-  var_dump($user->getdespassword());
+  $array = ['key'=>'value'];
+  echo "Test interpolating assoc array values $array=>key";
+  exit;
 });
   
 $app->get('/');

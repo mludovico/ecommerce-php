@@ -52,9 +52,7 @@ class Address extends Model{
       )
     );
     if(count($results) > 0)
-      return $results[0];
-    else
-      return [];
+      $this->setData($results[0]);
   }
 
   public static function setError($msg){

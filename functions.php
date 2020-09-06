@@ -1,6 +1,7 @@
 <?php
 
   use \mludovico\Models\User;
+  use \mludovico\Models\Cart;
 
   function formatPrice($vlprice)
   {
@@ -20,4 +21,19 @@
     
     return $user->getdesperson();
   }
+
+  function getCartNrQtd()
+  {
+    $cart = Cart::getFromSession();
+    $totals = $cart->getProductsTotals();
+    return $totals['nrqtd'];
+  }
+
+  function getCartVlSubtotal()
+  {
+    $cart = Cart::getFromSession();
+    $totals = $cart->getProductsTotals();
+    return $totals['vlprice'];
+  }
+
 ?>

@@ -13,6 +13,8 @@ class User extends Model{
   const ERROR = "UserError";
   const REGISTER_ERROR = "UserRegisterError";
   const SUCCESS = "UserSuccess";
+  const PASS_SUCCESS = "PassSuccess";
+  const PASS_ERROR = "PassError";
 
   public static $link = "";
 
@@ -259,6 +261,34 @@ class User extends Model{
 
   public static function clearUserSuccess(){
     $_SESSION[User::SUCCESS] = NULL;
+  }
+
+  public static function setPassSuccess($msg){
+    $_SESSION[User::PASS_SUCCESS] = $msg;
+  }
+
+  public static function getPassSuccess(){
+    $msg = (isset($_SESSION[User::PASS_SUCCESS])) ? $_SESSION[User::PASS_SUCCESS] : "";
+    User::clearPassSuccess();
+    return $msg;
+  }
+
+  public static function clearPassSuccess(){
+    $_SESSION[User::PASS_SUCCESS] = NULL;
+  }
+
+  public static function setPassError($msg){
+    $_SESSION[User::PASS_ERROR] = $msg;
+  }
+
+  public static function getPassError(){
+    $msg = (isset($_SESSION[User::PASS_ERROR])) ? $_SESSION[User::PASS_ERROR] : "";
+    User::clearPassError();
+    return $msg;
+  }
+
+  public static function clearPassError(){
+    $_SESSION[User::PASS_ERROR] = NULL;
   }
 
   public static function checkLoginExists($login)

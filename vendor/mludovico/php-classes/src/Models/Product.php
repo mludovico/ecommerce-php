@@ -12,6 +12,29 @@ class Product extends Model{
     return $sql->select("SELECT * FROM tb_products");
   }
 
+  public static function getProductsPerPage($page = 1, $search = '', $itemsPerPage = 10)
+  {
+    $sql = new Sql();
+    $results = $sql->select(
+      "SELECT *, COUNT(*) OVER() AS nrtotal
+       FROM tb_products
+       WHERE desproduct ILIKE :search
+       ORDER BY desproduct
+       LIMIT :itemsPerPage
+       OFFSET :page", array(
+        ":search"=>"%$search%",
+        "itemsPerPage"=>$itemsPerPage,
+        "page"=>($page-1) * $itemsPerPage
+       )
+    );
+    $data = [
+      "data"=>$results,
+      "total"=>(int)$results[0]['nrtotal'],
+      "pages"=>ceil($results[0]['nrtotal'] / $itemsPerPage)
+    ];
+    return($data);
+  }
+
   public static function checkList($list)
   {
     foreach ($list as &$row) {

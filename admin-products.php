@@ -5,10 +5,24 @@ use \mludovico\Models\Product;
 
 $app->get('/admin/products', function(){
   User::verifyLogin();
-  $product = Product::listAll();
+  $search = (isset($_GET['search'])) ? $_GET['search'] : '';
+  $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+  $pagination = Product::getProductsPerPage($page, $search);
+  $pages = [];
+  for($i = 1; $i <= $pagination["pages"]; $i++){
+    array_push($pages, [
+      'href'=>'/admin/products?' . http_build_query([
+        'page'=>$i,
+        'search'=>$search
+      ]),
+      'text'=>$i
+    ]);
+  }
   $page = new PageAdmin();
   $page->setTpl('products', array(
-    "products"=>$product
+    'products'=>$pagination['data'],
+    'search'=>$search,
+    'pages'=>$pages,
   ));
 });
 

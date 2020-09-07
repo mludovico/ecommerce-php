@@ -3,6 +3,43 @@
 use \mludovico\Models\User;
 use \mludovico\PageAdmin;
 
+$app->get('/admin/users/:iduser/password', function($iduser){
+  User::verifyLogin();
+  $user = new User();
+  $user->get((int)$iduser);
+  $page = new PageAdmin();
+  $page->setTpl('users-password', array(
+    'user'=>$user->getValues(),
+    'msgSuccess'=>User::getPassSuccess(),
+    'msgError'=>User::getPassError()
+  ));
+});
+
+$app->post('/admin/users/:iduser/password', function($iduser){
+  User::verifyLogin();
+  if(!isset($_POST['despassword']) || strlen($_POST['despassword']) === 0){
+    User::setPassError('Digite uma senha.');
+    header("Location: /admin/users/$iduser/password");
+    exit;
+  }
+  if(!isset($_POST['despassword-confirm']) || strlen($_POST['despassword-confirm']) === 0){
+    User::setPassError('Confirme a senha.');
+    header("Location: /admin/users/$iduser/password");
+    exit;
+  }
+  if($_POST['despassword'] !== $_POST['despassword-confirm']){
+    User::setPassError('O campo confirmação não confere com a senha digitada.');
+    header("Location: /admin/users/$iduser/password");
+    exit;
+  }
+  $user = new User();
+  $user->get((int)$iduser);
+  $user->setPassword($_POST['despassword']);
+  User::setPassSuccess("Senha alterada com sucesso!");
+  header("Location: /admin/users/$iduser/password");
+  exit;
+});
+
 $app->get('/admin/users/:iduser/delete', function($iduser){
 
   User::verifyLogin();

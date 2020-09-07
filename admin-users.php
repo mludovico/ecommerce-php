@@ -18,10 +18,24 @@ $app->get('/admin/users/:iduser/delete', function($iduser){
 $app->get('/admin/users', function(){
   
   User::verifyLogin();
-  $users = User::listAll();
+  $search = (isset($_GET['search'])) ? $_GET['search'] : '';
+  $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+  $pagination = User::getUsersPerPage($page, $search);
+  $pages = [];
+  for($i = 1; $i <= $pagination["pages"]; $i++){
+    array_push($pages, [
+      'href'=>'/admin/users?' . http_build_query([
+        'page'=>$i,
+        'search'=>$search
+      ]),
+      'text'=>$i
+    ]);
+  }
   $page = new PageAdmin();
   $page->setTpl("users", array(
-    "users"=>$users
+    'users'=>$pagination['data'],
+    'search'=>$search,
+    'pages'=>$pages
   ));
 });
   

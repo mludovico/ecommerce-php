@@ -321,6 +321,31 @@ class User extends Model{
       return $results;
   }
 
+  public static function getUsersPerPage($page = 1, $search = '', $itemsPerPage = 10)
+  {
+    $sql = new Sql();
+    $results = $sql->select(
+      "SELECT *, COUNT(*) OVER() AS nrtotal
+       FROM tb_users a
+       INNER JOIN tb_persons b
+       USING(idperson)
+       WHERE b.desperson ILIKE :search OR b.desemail = :search OR a.deslogin ILIKE :search
+       ORDER BY b.desperson
+       LIMIT :itemsPerPage
+       OFFSET :page", array(
+        ":search"=>"%$search%",
+        "itemsPerPage"=>$itemsPerPage,
+        "page"=>($page-1) * $itemsPerPage
+       )
+    );
+    $data = [
+      "data"=>$results,
+      "total"=>(int)$results[0]['nrtotal'],
+      "pages"=>ceil($results[0]['nrtotal'] / $itemsPerPage)
+    ];
+    return($data);
+  }
+
 }
 
 ?>

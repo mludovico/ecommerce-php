@@ -74,14 +74,14 @@ class Category extends Model{
        LIMIT :itemsPerPage
        OFFSET :page", array(
         ":search"=>"%$search%",
-        "itemsPerPage"=>$itemsPerPage,
-        "page"=>($page-1) * $itemsPerPage
+        ":itemsPerPage"=>$itemsPerPage,
+        ":page"=>($page-1) * $itemsPerPage
        )
     );
     $data = [
-      "data"=>$results,
-      "total"=>(int)$results[0]['nrtotal'],
-      "pages"=>ceil($results[0]['nrtotal'] / $itemsPerPage)
+      "data"=>(count($results) > 0) ? $results : [],
+      "total"=>(count($results) > 0) ? (int)$results[0]['nrtotal'] : 0,
+      "pages"=>(count($results) > 0) ? ceil($results[0]['nrtotal'] / $itemsPerPage) : 1
     ];
     return($data);
   }

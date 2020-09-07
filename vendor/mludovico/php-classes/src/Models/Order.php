@@ -73,6 +73,43 @@ class Order extends Model{
     return $results;
   }
 
+  public static function getOrdersPerPage($page = 1, $search = '', $itemsPerPage = 10)
+  {
+    $sql = new Sql();
+    $results = $sql->select(
+      "SELECT *, COUNT(*) OVER() AS nrtotal
+      FROM tb_orders a
+      INNER JOIN tb_ordersstatus b USING(idstatus)
+      INNER JOIN tb_cart c USING(idcart)
+      INNER JOIN tb_users d ON d.iduser = a.iduser
+      INNER JOIN tb_addresses e USING(idaddress)
+      INNER JOIN tb_persons f ON f.idperson = d.idperson
+      WHERE desstatus ILIKE :search
+      OR d.deslogin = :search
+      OR e.desaddress ILIKE :search
+      OR e.descity ILIKE :search
+      OR e.desstate ILIKE :search
+      OR e.descountry ILIKE :search
+      OR e.deszipcode ILIKE :search
+      OR e.desdistrict ILIKE :search
+      OR f.desperson ILIKE :search
+      OR f.desemail ILIKE :search
+      ORDER BY a.dtregister DESC
+      LIMIT :itemsPerPage
+      OFFSET :page", array(
+        ":search"=>"%$search%",
+        ":itemsPerPage"=>$itemsPerPage,
+        ":page"=>($page-1) * $itemsPerPage
+       )
+    );
+    $data = [
+      "data"=>(count($results) > 0) ? $results : [],
+      "total"=>(count($results) > 0) ? (int)$results[0]['nrtotal'] : 0,
+      "pages"=>(count($results) > 0) ? ceil($results[0]['nrtotal'] / $itemsPerPage) : 1
+    ];
+    return($data);
+  }
+
   public function delete()
   {
     $sql = new Sql();

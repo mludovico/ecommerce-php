@@ -39,10 +39,11 @@ class Address extends Model{
   public function save(Type $var = null){
     $sql = new Sql();
     $results = $sql->select(
-      "SELECT * FROM sp_addresses_save(:idaddress, :idperson, :desaddress, :descomplement, :descity, :desstate, :descountry, :deszipcode, :desdistrict)", array(
+      "SELECT * FROM sp_addresses_save(:idaddress, :idperson, :desaddress, :desnumber, :descomplement, :descity, :desstate, :descountry, :deszipcode, :desdistrict)", array(
         ':idaddress'=>$this->getidaddress(),
         ':idperson'=>$this->getidperson(),
         ':desaddress'=>$this->getdesaddress(),
+        ':desnumber'=>$this->getdesnumber(),
         ':descomplement'=>$this->getdescomplement(),
         ':descity'=>$this->getdescity(),
         ':desstate'=>$this->getdesstate(),

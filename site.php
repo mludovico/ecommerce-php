@@ -52,6 +52,8 @@ $app->get('/products/:desurl', function($desurl){
 
 $app->get('/cart', function(){
   $cart = Cart::getFromSession();
+  if($cart->getdeszipcode() == NULL)
+    $cart->setdeszipcode('');
   $page = new Page();
   $page->setTpl('cart', array(
     'cart'=>$cart->getValues(),
@@ -65,6 +67,7 @@ $app->get('/cart/:idproduct/add', function($idproduct){
   $product->get((int)$idproduct);
   $cart = Cart::getFromSession();
   $qtd = (isset($_GET['qtd'])) ? (int)$_GET['qtd'] : 1;
+  $cart->save();
   for($i = 0; $i < $qtd; $i++){
     $cart->addProduct($product);
   }
@@ -112,6 +115,7 @@ $app->get('/checkout', function(){
   }
   if(!$address->getdeszipcode()) $address->setdeszipcode('');
   if(!$address->getdesaddress()) $address->setdesaddress('');
+  if(!$address->getdesnumber()) $address->setdesnumber('');
   if(!$address->getdescomplement()) $address->setdescomplement('');
   if(!$address->getdesdistrict()) $address->setdesdistrict('');
   if(!$address->getdescity()) $address->setdescity('');
@@ -325,7 +329,7 @@ $app->get('/payment/:idorder', function($idorder){
   $dias_de_prazo_para_pagamento = 10;
   $taxa_boleto = 5.00;
   $data_venc = date("d/m/Y", time() + ($dias_de_prazo_para_pagamento * 86400));  // Prazo de X dias OU informe data: "13/04/2006"; 
-  $valor_cobrado = formatPrice($order->getvltotal()); // Valor - REGRA: Sem pontos na milhar e tanto faz com "." ou "," ou com 1 ou 2 ou sem casa decimal
+  $valor_cobrado = $order->getvltotal(); // Valor - REGRA: Sem pontos na milhar e tanto faz com "." ou "," ou com 1 ou 2 ou sem casa decimal
   $valor_cobrado = str_replace(",", ".",$valor_cobrado);
   $valor_boleto=number_format($valor_cobrado+$taxa_boleto, 2, ',', '');
 

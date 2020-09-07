@@ -63,6 +63,29 @@ class Category extends Model{
     );
   }
 
+  public static function getCategoriesPerPage($page = 1, $search = '', $itemsPerPage = 10)
+  {
+    $sql = new Sql();
+    $results = $sql->select(
+      "SELECT *, COUNT(*) OVER() AS nrtotal
+       FROM tb_categories
+       WHERE descategory ILIKE :search
+       ORDER BY descategory
+       LIMIT :itemsPerPage
+       OFFSET :page", array(
+        ":search"=>"%$search%",
+        "itemsPerPage"=>$itemsPerPage,
+        "page"=>($page-1) * $itemsPerPage
+       )
+    );
+    $data = [
+      "data"=>$results,
+      "total"=>(int)$results[0]['nrtotal'],
+      "pages"=>ceil($results[0]['nrtotal'] / $itemsPerPage)
+    ];
+    return($data);
+  }
+
   public function getProducts($related = true)
   {
     $sql = new Sql();

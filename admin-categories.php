@@ -7,10 +7,24 @@ use \mludovico\Models\Product;
 
 $app->get('/admin/categories', function(){
   User::verifyLogin();
-  $categories = Category::listAll();
+  $search = (isset($_GET['search'])) ? $_GET['search'] : '';
+  $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+  $pagination = Category::getCategoriesPerPage($page, $search);
+  $pages = [];
+  for($i = 1; $i <= $pagination["pages"]; $i++){
+    array_push($pages, [
+      'href'=>'/admin/catgories?' . http_build_query([
+        'page'=>$i,
+        'search'=>$search
+      ]),
+      'text'=>$i
+    ]);
+  }
   $page = new PageAdmin();
   $page->setTpl('categories', array(
-    "categories"=>$categories
+    'categories'=>$pagination['data'],
+    'search'=>$search,
+    'pages'=>$pages,
   ));
   
 });
